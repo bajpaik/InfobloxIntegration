@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sn_cmp_pol_action_attributes">
+    <sn_cmp_pol_action_attributes action="INSERT_OR_UPDATE">
+        <action display_value="IPAddress">94cbc8c95b44130025c9273a41f91aa1</action>
+        <action_script_name/>
+        <is_script/>
+        <is_system_generated>true</is_system_generated>
+        <property>DNSSuffix</property>
+        <script/>
+        <sys_class_name>sn_cmp_pol_action_attributes</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2018-02-01 01:50:17</sys_created_on>
+        <sys_id>10cbc8c95b44130025c9273a41f91aa7</sys_id>
+        <sys_mod_count>1</sys_mod_count>
+        <sys_name>94cbc8c95b44130025c9273a41f91aa1</sys_name>
+        <sys_package display_value="InfobloxIntegration" source="sn_infobloxintegra">65e14c815b44130025c9273a41f91a12</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="InfobloxIntegration">65e14c815b44130025c9273a41f91a12</sys_scope>
+        <sys_update_name>sn_cmp_pol_action_attributes_10cbc8c95b44130025c9273a41f91aa7</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2018-02-01 01:50:50</sys_updated_on>
+        <value>itomcmp.servicenow.com</value>
+    </sn_cmp_pol_action_attributes>
+</record_update>

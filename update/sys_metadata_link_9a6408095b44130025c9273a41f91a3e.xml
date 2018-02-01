@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_metadata_link">
+    <sys_metadata_link action="INSERT_OR_UPDATE">
+        <directory>update</directory>
+        <documentkey>2fd2ccc55b44130025c9273a41f91a43</documentkey>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<record_update sys_domain="global" table="sn_cmp_infoblox_credentials">
+    <sn_cmp_infoblox_credentials action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <applies_to>all</applies_to>
+        <authentication_key/>
+        <authentication_protocol/>
+        <classification>cmp_infoblox_credentials</classification>
+        <mid_list/>
+        <name>InfobloxSeattle</name>
+        <order>100</order>
+        <password>cipRkGkFz5I=</password>
+        <privacy_key/>
+        <privacy_protocol/>
+        <ssh_passphrase/>
+        <ssh_private_key/>
+        <sys_class_name>sn_cmp_infoblox_credentials</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2018-02-01 01:11:51</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>2fd2ccc55b44130025c9273a41f91a43</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2018-02-01 01:11:51</sys_updated_on>
+        <tag/>
+        <type>cmp_infoblox_credentials</type>
+        <user_name>cmpdev.svc</user_name>
+        <wapiversion>1.4</wapiversion>
+    </sn_cmp_infoblox_credentials>
+</record_update>
+]]></payload>
+        <sys_class_name>sys_metadata_link</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2018-02-01 01:18:12</sys_created_on>
+        <sys_id>9a6408095b44130025c9273a41f91a3e</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>InfobloxSeattle</sys_name>
+        <sys_package display_value="InfobloxIntegration" source="sn_infobloxintegra">65e14c815b44130025c9273a41f91a12</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="InfobloxIntegration">65e14c815b44130025c9273a41f91a12</sys_scope>
+        <sys_update_name>sys_metadata_link_9a6408095b44130025c9273a41f91a3e</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2018-02-01 01:18:12</sys_updated_on>
+        <tablename>discovery_credentials</tablename>
+    </sys_metadata_link>
+</record_update>

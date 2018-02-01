@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sn_cmp_pol_rule">
+    <sn_cmp_pol_rule action="INSERT_OR_UPDATE">
+        <condition>formdata.LocationSTARTSWITHvSphere</condition>
+        <condition_script>   checkValue( outputMap.inputMap.formData.Location, 'STARTSWITH','vSphere') </condition_script>
+        <name>VM Provision Rule</name>
+        <policy display_value="VMWare Infoblox Integration Provision">2feac4c95b44130025c9273a41f91a33</policy>
+        <rule_order>100</rule_order>
+        <script/>
+        <sys_class_name>sn_cmp_pol_rule</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2018-02-01 01:49:40</sys_created_on>
+        <sys_id>5b9b88c95b44130025c9273a41f91ae6</sys_id>
+        <sys_mod_count>5</sys_mod_count>
+        <sys_name>VM Provision Rule</sys_name>
+        <sys_package display_value="InfobloxIntegration" source="sn_infobloxintegra">65e14c815b44130025c9273a41f91a12</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="InfobloxIntegration">65e14c815b44130025c9273a41f91a12</sys_scope>
+        <sys_update_name>sn_cmp_pol_rule_5b9b88c95b44130025c9273a41f91ae6</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2018-02-01 01:51:09</sys_updated_on>
+    </sn_cmp_pol_rule>
+</record_update>

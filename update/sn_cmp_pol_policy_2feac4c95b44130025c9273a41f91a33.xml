@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sn_cmp_pol_policy">
+    <sn_cmp_pol_policy action="INSERT_OR_UPDATE">
+        <description/>
+        <end_date/>
+        <group_id/>
+        <is_global>false</is_global>
+        <is_system>false</is_system>
+        <moment>pre</moment>
+        <name>VMWare Infoblox Integration Provision</name>
+        <operation_id>134a77de0be622009e620bcb15673a05</operation_id>
+        <operation_name>134a77de0be622009e620bcb15673a05</operation_name>
+        <policy_order>1</policy_order>
+        <script><![CDATA[var policyId = ""; 
+var inputMap = JSON.parse(inputMapStr);
+gs.info("inputMapStr = " + inputMapStr);
+var outputMap = {};
+outputMap.inputMap = inputMap;
+outputMap.inputMap.abortProcess = false;
+outputMap.policyName = "VMWare Infoblox Integration Provision";
+outputMap.isError = false;
+outputMap.suspendProcess = false;
+outputMap.logs = {};
+outputMap.logs.message = "";
+outputMap.logs.rules = [];
+outputMap.logs.isSuccessful = false;
+outputMap.logs.isError = false;
+ 
+var MESSAGE_TYPE_DEBUG = "1";
+var MESSAGE_TYPE_INFO = "2";
+var MESSAGE_TYPE_WARN = "3";
+var MESSAGE_TYPE_ERROR = "4";
+
+var RESERVEIP = "1";
+var DEPROVISION = "2";
+var REGISTERIP = "3";
+
+function VMWareInfobloxIntegrationProvision() {
+	try {
+		var isSuccessful = false;
+		policyId = "2feac4c95b44130025c9273a41f91a33";
+		
+        isSuccessful = outputMap.logs.isError || VMProvisionRule();
+
+	} catch (err) {
+		outputMap.logs.isSuccessful = false;
+		outputMap.logs.isError = true;
+		outputMap.logs.errorMessage = err.message;
+	}
+	return JSON.stringify(outputMap);
+}
+
+function checkUserCondition( type, value,userEntityMap, operation){
+	var isValid = false;
+	gs.info( 'checkUserCondition( ) userId = ' + outputMap.inputMap.userData.userId + ' value = ' + value);
+	var policyExecutionUtil = new sn_cmp.PolicyExecutionUtil();
+	if( type == 'group') {
+            isValid = policyExecutionUtil.isGroupMember(outputMap.inputMap.userData.userId, value, operation);
+	} else if(type == 'role') {
+            isValid = policyExecutionUtil.isRoleMember(outputMap.inputMap.userData.userId, value, operation);
+	}
+	return isValid;
+}
+
+//validate condition
+function validateCondition( operand, operator, value, condition){
+	var isError = false;
+	var isSuccessful = false;
+	try {
+		condition.operand = operand;
+		condition.operator = operator;
+		condition.value = value;
+		conditions[conditions.length] = condition;
+		switch(operator){
+			case "==":
+				isSuccessful = (operator == value);
+				break;
+			case "!=":
+				isSuccessful = (operator != value);
+				break;
+			case ">":
+				isSuccessful = (operator > value);
+				break;
+			case "<":
+				isSuccessful = (operator < value);
+				break;
+			default:
+		}
+	}catch( exception){
+		isError = true;
+		isSuccessful = false;
+	}
+	condition.isSuccessful = isSuccessful;
+	condition.isError = isError;
+}
+
+function checkList( value, userEntityMap, validateIn, attributeName){
+	var isValid = false;
+	var userEntityMapLength = userEntityMap.length;
+	for( var i=0;i<userEntityMapLength; i++){
+		if( value == userEntityMap[i][attributeName]){
+			isValid = true;
+			break;
+		}
+	}
+	if( !validateIn){
+		isValid = !isValid;
+	}
+	return isValid;
+}
+
+function checkValue( operand, operator, value){
+	var isSuccessful = false;
+	var policyExecutionUtil = new sn_cmp.PolicyExecutionUtil();	
+	var action ={};
+	action.operation= "";
+gs.info( 'operand = ' + operand + '   operator = '  + operator  + ' value = ' + value);
+	value = policyExecutionUtil.resolveExpressions( action, value, outputMap.inputMap);	
+	if(operand == null){
+		if( typeof value  == 'number'){
+			operand = 0;
+		}else{
+			operand = "";
+		}
+	}
+	switch(operator.toLowerCase()){
+	    case "equalsIgnoreCase":
+	    isSuccessful = false;
+	    if(operand != null && value != null){
+	    	isSuccessful = (operand.toLowerCase() == value.toLowerCase());
+	    } 
+	    break;
+	    case "contains":
+	    //handle array and collection later
+	    isSuccessful = false;
+	    if(operand != null && value != null){
+                gs.info( 'inside contains  ' + operand.indexOf(value));
+	    	isSuccessful = (operand.toLowerCase().indexOf(value.toLowerCase()) != -1);
+	    }	
+	    break;
+	    case "containsIgnoreCase":
+	    isSuccessful = false;
+	    if(operand != null && value != null){
+	    	isSuccessful = (operand.toLowerCase().indexOf(value.toLowerCase()) != -1);
+	    }	
+	    break; 	        
+		case "==":
+		isSuccessful = (operand == value);
+		break;
+		case "!=":
+		isSuccessful = (operand != value);
+		break;
+		case ">":
+		isSuccessful = (operand > value);
+		break;
+	       case ">=":
+               gs.info( operand + '>=' + value);
+		isSuccessful = (operand >= value);
+		break;
+		case "<=":
+		isSuccessful = (operand <= value);
+		break;	
+		case "does not contain":
+		isSuccessful = false;
+		if(operand != null && value != null){
+			isSuccessful = (operand.toLowerCase().indexOf(value.toLowerCase()) == -1);
+		}
+		break;
+		case "startswith":
+		isSuccessful = false;
+		if(operand != null && value != null){
+			isSuccessful = operand.startsWith(value);
+		}
+		break;
+		case "endswith":
+		isSuccessful = false;
+		if(operand != null && value != null){
+			isSuccessful = operand.endsWith(value);
+		}
+		break;
+	
+		default:
+	}
+	return isSuccessful;
+}
+
+function checkBudgetConditionBuilder( budgetConsumptionType, operator, value){
+        var policyExecutionUtil = new sn_cmp.PolicyExecutionUtil();
+        return policyExecutionUtil.checkBudgetConsumptionBuilder(inputMap, outputMap,budgetConsumptionType, operator, value);
+}
+
+function checkBudgetCondition( conditionId, inputMap){
+        var policyExecutionUtil = new sn_cmp.PolicyExecutionUtil();
+        return policyExecutionUtil.checkBudgetConsumption(conditionId, inputMap, outputMap);
+}
+
+function checkFreeFormCondition( conditionId, inputMap){
+       var policyExecutionUtil = new sn_cmp.PolicyExecutionUtil();
+       return policyExecutionUtil.checkFreeFormCondition(conditionId, inputMap, outputMap);
+}
+
+function checkDefaultCondition( conditionId, inputMap){
+       var policyExecutionUtil = new sn_cmp.PolicyExecutionUtil();
+       return policyExecutionUtil.checkFreeFormCondition(conditionId, inputMap, outputMap);       
+}
+
+function approvalActions( rule, approvalObj, actionId){
+	var action  = {};
+	var policyExecutionUtil = new sn_cmp.PolicyExecutionUtil();
+	rule.actions[rule.actions.length] = action;
+	if( gs.nil(outputMap.inputMap.approval)){
+		action.operation="approvalActions : " + JSON.stringify(approvalObj);
+		outputMap.inputMap.approval = approvalObj;
+                if( approvalObj != null){
+                       action.message ="Invoking Approval Task " + approvalObj.approvalUserNames + "  " + approvalObj.approvalGroupNames + "  "+ outputMap.inputMap.requestItemId;
+                       policyExecutionUtil.updateRuleLog( outputMap, MESSAGE_TYPE_INFO, "Apply Policy Rule Action", action, true);
+               }
+	} else {
+		action.operation="approvalActions : skipped.";
+	}
+}
+
+function propertyAction( rule, property, value, isScript, actionId){
+	var action = {};
+	gs.info('propertyAction() property = ' + property + ' value = ' + value);
+	var policyExecutionUtil = new sn_cmp.PolicyExecutionUtil();
+	rule.actions[rule.actions.length] = action;
+	action.operation = "";
+	var outputVal = policyExecutionUtil.resolveExpressions( action, value, outputMap.inputMap);
+	if( isScript == "true"){
+		action.operation += "\n Property is evaluated through a script"
+		var scriptEvaluated = scriptAction( rule, actionId, outputMap.inputMap);
+		try{
+			gs.info( "scriptEvaluated = " + scriptEvaluated);
+			if( scriptEvaluated != null 
+				&& scriptEvaluated.formData != null
+				&& scriptEvaluated.formData[property] != null) {
+				outputVal = scriptEvaluated.formData[property];
+			}
+		}catch( err){
+			gs.info("propertyAction() error during property assignment " + err);
+		}
+	}
+	action.operation += "\noutputMap.inputMap.formData." + property + "=" + outputVal;
+	outputMap.inputMap.formData[property] = outputVal;
+    action.message = "Updating Parameter " +  property + " to " + outputMap.inputMap.formData[property] ;
+	policyExecutionUtil.updateRuleLog( outputMap,MESSAGE_TYPE_INFO, "Apply Policy Rule Action", action, false);
+}
+
+function abortAction( rule, message, actionId){
+	var action = {};
+	var policyExecutionUtil = new sn_cmp.PolicyExecutionUtil();
+	rule.actions[rule.actions.length] = action;
+	action.operation = message;
+	outputMap.inputMap.abortProcess = true;
+	outputMap.inputMap.message = message;
+	action.message = "Stop execution of request ";
+	policyExecutionUtil.updateRuleLog( outputMap, MESSAGE_TYPE_INFO, "Apply Policy Rule Action", action, false);
+}
+
+function scriptAction( rule, actionId, parameters, scriptName){
+	var action = {};
+	var policyExecutionUtil = new sn_cmp.PolicyExecutionUtil();
+	rule.actions[rule.actions.length] = action;
+	var inputStr =  "execute script for action with id " +actionId ;
+	inputStr += "parameters = " + JSON.stringify( parameters);
+    var policyScript = new sn_cmp_api.PolicyServiceScript();
+    var outputParameterStr = policyScript.invokeAction(actionId, JSON.stringify( parameters));
+    //gs.info("scriptAction parameters = "+ JSON.stringify(parameters));
+    if( outputParameterStr != null){
+    	try{
+    		var outputParameter = JSON.parse(outputParameterStr);
+    		gs.info("scriptAction outputParameterStr = "+ outputParameterStr);
+    		if( outputParameter.answer != null &&
+    			outputParameter.answer.formData != null){
+    			parameters.formData = outputParameter.answer.formData;	
+    			gs.info("scriptAction parameters = "+ JSON.stringify(parameters));
+    		}
+    	}catch( err){
+    		gs.info("scriptAction() while assingning formData = " + err);
+    	}
+    }
+    inputStr += "output parameters = " + outputParameterStr;   
+    action.operation = inputStr;  
+    action.message = "Invoking script " + scriptName +" for " +  outputMap.policyName;
+	policyExecutionUtil.updateRuleLog( outputMap, MESSAGE_TYPE_INFO, "Apply Policy Rule Action", action, false);
+    return parameters;
+}
+
+function catalogRequestAction( rule, workflowId, actionId, workflowName){
+	var action = {};
+	var policyExecutionUtil = new sn_cmp.PolicyExecutionUtil();
+	rule.actions[rule.actions.length] = action;
+	action.operation = "outputMap.logs.workflowId = " + workflowId;
+	if(gs.nil(outputMap.inputMap.workflowId)){
+		outputMap.inputMap.workflowId = workflowId;
+		action.message = "Invoking workflow with id "+ workflowName;
+		policyExecutionUtil.updateRuleLog( outputMap, MESSAGE_TYPE_INFO, "Apply Policy Rule Action", action, false);
+	}else{
+		action.message = "Skipping workflow with id "+ workflowName;
+	}
+}
+   
+function ipamAction( rule, actionId, name, ipamProviderType, ipamMethod, attributes){
+	gs.info("ipamAction Invoke IPAM Action  name = "+ name + " ipamMethod = " + ipamMethod 
+			+ " outputMap = " +  JSON.stringify(outputMap.inputMap)
+			+ " attributes = " + JSON.stringify(attributes));
+	var action = {};
+	var policyExecutionUtil = new sn_cmp.PolicyExecutionUtil();
+	var operationLog = "IPAMAction Inputs name = " + name 
+						+ " ipamMethod = " + ipamMethod
+						+ " actionId = " + actionId
+						+ " attributes = " + attributes
+						+" \n";		
+	var nodeId = outputMap.inputMap.ciInstanceId;	
+
+        if(ipamMethod == DEPROVISION){
+                  nodeId = outputMap.inputMap.formData.ServerId;
+        }			
+	if( ipamMethod == DEPROVISION || ipamMethod ==REGISTERIP ){
+		gs.info("ipamAction() orderId = " + outputMap.inputMap.orderId);
+		var ipamInfo = policyExecutionUtil.getIPAMInfoForNode(nodeId, outputMap.inputMap.orderId);
+		gs.info("ipamAction ipamInfo = " + JSON.stringify(ipamInfo) + " nodeId = " + nodeId + " ciInstanceId = " + outputMap.inputMap.ciInstanceId + " ServerId =  " +  outputMap.inputMap.formData.ServerId);
+		if(!gs.nil(ipamInfo)){
+			outputMap.inputMap.formData.IPAddress = ipamInfo.privateIP;
+			outputMap.inputMap.formData.SubnetId = ipamInfo.subnet;
+		}
+	}					
+	var providerTableExp = '$(ci.sn_cmp_ip_pool[subnet=${parameter.formData.SubnetId}].ipam_provider)';				
+	var providerTable = policyExecutionUtil.resolveExpressions( action,providerTableExp,outputMap.inputMap);
+	var provider = "";
+	if( !gs.nil(providerTable)){
+		var grc = new GlideRecord(providerTable);
+		if( grc.isValid()){
+   			provider = grc.getLabel();
+   			gs.info( "grc class name = " + grc.getLabel());
+		}
+		gs.info(provider + " provider ");
+	}
+
+
+	var version = "1.0";
+	var credentialsExp = '$(ci.' + ipamProviderType + '[$(ci.sn_cmp_ip_pool[subnet=${parameter.formData.SubnetId}].provider_instance)].credential)';
+	var credentials = policyExecutionUtil.resolveExpressions( action,credentialsExp,outputMap.inputMap);
+	var endpointExp = '$(ci.' + ipamProviderType + '[$(ci.sn_cmp_ip_pool[subnet=${parameter.formData.SubnetId}].provider_instance)].url)';
+	var endpointUrl = policyExecutionUtil.resolveExpressions( action, endpointExp,outputMap.inputMap);
+	var interfaceName = "IPAM Interface";
+	var method = "compute method id";
+	var methodName = "CreateHostRecord";
+	if( ipamMethod == DEPROVISION){
+		methodName = "DeleteHostRecord";
+	}
+	var mode = "Pre";
+	var modeId = policyExecutionUtil.resolveExpressions( action, "$(ci.sn_cmp_ip_pool[subnet=${parameter.formData.SubnetId}].mode)",outputMap.inputMap);
+    if( !gs.nil(outputMap.inputMap.moment) && outputMap.inputMap.moment.toLowerCase() == "pre"){
+        if( modeId != "1"){
+			skipCAPICall = true;
+			operationLog += "Provider cannot be empty. CAPI call will be skipped.";
+		}
+	}
+    if( !gs.nil(modeId)){
+		switch(modeId){
+			case "1":
+			mode = "Pre";
+			break;	
+			case "2":
+			mode = "Post";
+			break;
+			case "3":
+			mode = "DHCP";
+			break;	
+		}
+	}
+	var attributeStr = JSON.stringify(attributes);
+	attributeStr = policyExecutionUtil.resolveExpressions( action,attributeStr,outputMap.inputMap);
+	attributeStr = attributeStr.replace("${mode}", mode);
+	rule.actions[rule.actions.length] = action;
+	operationLog = "Modified Call inputs "
+						+ " method = " + ipamMethod
+						+ " actionId = " + actionId
+						+ " name = " + name
+						+ " provider = " + provider
+						+ " version = " + version
+						+ " credentials = " + credentials
+						+ " endpointUrl = " + endpointUrl
+						+ " interfaceName = " + interfaceName
+						+ " methodName = " + methodName
+						+ " attributes = " + attributeStr
+                        + "endpointExp = " + endpointExp
+                        + "credentialsExp = " + credentialsExp
+						+" \n";
+	
+	var skipCAPICall = false;
+	if( gs.nil(provider)){
+		skipCAPICall = true;
+		operationLog += "Provider cannot be empty. CAPI call will be skipped.";
+	}
+	if( gs.nil(credentials)){
+		skipCAPICall = true;
+		operationLog += "Credential cannot be empty. CAPI call will be skipped.";
+	}
+
+	if(skipCAPICall){
+		action.message = "Skipping IPAM Action " + interfaceName +"." + methodName;
+	}else{
+		var capi = new sn_cloud_api.CAPIOrchestratorServiceScript();
+		var routeId = capi.executeApi(provider, version, credentials, interfaceName, methodName, endpointUrl,  attributeStr, "policy");
+		action.operation += "Computed routeId = " + routeId
+							+ "\n";
+		capiPostAction( action, routeId, name, actionId);
+	    action.message = "Invoking Cloud API " + interfaceName +"." + methodName;	
+	}
+	action.operation = operationLog;
+	policyExecutionUtil.updateRuleLog( outputMap, MESSAGE_TYPE_INFO, "Apply Policy Rule Action", action, false);
+}
+   
+function capiAction( rule, actionId, name, provider, version, credentials, endpointUrl, interfaceId, interfaceName, method, methodName, attributes){
+	gs.info("capiAction Invoke CAPI Call  interfaceId = "+ interfaceId + " method = " + method 
+			+ " outputMap = " +  JSON.stringify(outputMap.inputMap)
+			+ " provider = " + provider
+			+ " version  = " + version
+			+ " credentials = " + credentials );
+	var action = {};
+	var policyExecutionUtil = new sn_cmp.PolicyExecutionUtil();
+	var operationLog = "CAPI Call inputs " + interfaceId 
+						+ " method = " + method
+						+ " actionId = " + actionId
+						+ " name = " + name
+						+ " provider = " + provider
+						+ " version = " + version
+						+ " credentials = " + credentials
+						+ " endpointUrl = " + endpointUrl
+						+ " interfaceName = " + interfaceName
+						+ " methodName = " + methodName
+						+ " attributes = " + attributes
+						+" \n";
+	provider = policyExecutionUtil.resolveExpressions( action,provider,outputMap.inputMap);
+	version = policyExecutionUtil.resolveExpressions( action,version,outputMap.inputMap);
+	credentials = policyExecutionUtil.resolveExpressions( action,credentials,outputMap.inputMap);
+	interfaceId = policyExecutionUtil.resolveExpressions( action, interfaceId,outputMap.inputMap);
+	endpointUrl = policyExecutionUtil.resolveExpressions( action, endpointUrl,outputMap.inputMap);
+	interfaceName = policyExecutionUtil.resolveExpressions( action, interfaceName,outputMap.inputMap);
+	method = policyExecutionUtil.resolveExpressions( action, method,outputMap.inputMap);
+	methodName = policyExecutionUtil.resolveExpressions( action,methodName,outputMap.inputMap);
+	var attributeStr = JSON.stringify(attributes);
+	attributeStr = policyExecutionUtil.resolveExpressions( action,attributeStr,outputMap.inputMap);
+	rule.actions[rule.actions.length] = action;
+	operationLog = "Modified Call inputs " + interfaceId 
+						+ " method = " + method
+						+ " actionId = " + actionId
+						+ " name = " + name
+						+ " provider = " + provider
+						+ " version = " + version
+						+ " credentials = " + credentials
+						+ " endpointUrl = " + endpointUrl
+						+ " interfaceName = " + interfaceName
+						+ " methodName = " + methodName
+						+ " attributes = " + attributeStr
+						+" \n";
+	
+	var skipCAPICall = false;
+	if( gs.nil(provider)){
+		skipCAPICall = true;
+		operationLog += "Provider cannot be empty. CAPI call will be skipped.";
+	}
+	if( gs.nil(credentials)){
+		skipCAPICall = true;
+		operationLog += "Credential cannot be empty. CAPI call will be skipped.";
+	}
+
+	if(skipCAPICall){
+		action.message = "Skipping Cloud API " + interfaceName +"." + methodName;
+	}else{
+		var capi = new sn_cloud_api.CAPIOrchestratorServiceScript();
+		var routeId = capi.executeApi(provider, version, credentials, interfaceName, methodName, endpointUrl,  attributeStr, "policy");
+		action.operation += "Computed routeId = " + routeId
+							+ "\n";
+		capiPostAction( action, routeId, name, actionId);
+	    action.message = "Invoking Cloud API " + interfaceName +"." + methodName;	
+	}
+	action.operation = operationLog;
+	policyExecutionUtil.updateRuleLog( outputMap, MESSAGE_TYPE_INFO, "Apply Policy Rule Action", action, false);
+}
+
+function capiPostAction( action, routeId, name, actionId){
+	var policyService = new sn_cmp_api.PolicyServiceScript();
+	var policyStatusStr = policyService.getPolicyExecutionStatusById( outputMap.inputMap.policyExecutionId);
+	if( action.operation == null)
+		action.operation = "";
+	action.operation += "Policy Status = " + policyStatusStr + "\n";		
+	var policyStatus = JSON.parse( policyStatusStr);
+	var attributeStr = policyStatus.attributes;
+	var attributes = JSON.parse( attributeStr);
+	attributes.contextData = outputMap.inputMap.formData;
+	policyStatus.attributes = JSON.stringify(attributes);
+	var modifiedPolicyStatusStr = JSON.stringify(policyStatus);
+	action.operation += "Modified Policy Status = " + modifiedPolicyStatusStr + "\n";			
+	var updatePolicyExeOutput = policyService.updatePolicyExecutionStatus( modifiedPolicyStatusStr);	
+	var policyExecutionStatusActionDTO  = {};
+	policyExecutionStatusActionDTO.policyExecutionId = outputMap.inputMap.policyExecutionId;
+	policyExecutionStatusActionDTO.policyId =  policyId;
+	policyExecutionStatusActionDTO.status = "inprogress";
+	policyExecutionStatusActionDTO.extCorrelationId = routeId;
+	policyExecutionStatusActionDTO.attributes = policyStatus.attributes;
+	policyExecutionStatusActionDTO.name = name;
+	policyExecutionStatusActionDTO.completedActions = actionId;
+	outputMap.suspendProcess = true;
+	// Update Attributes
+	var actionStatusOutputStr = policyService.createPolicyExecutionActionStatus( JSON.stringify(policyExecutionStatusActionDTO));
+	action.operation += "New action status data = " + actionStatusOutputStr
+						+ "\n";			
+}
+
+/* VMProvisionRule*/
+function VMProvisionRule() {
+	var rule = {};
+	rule.id = "VMProvisionRule";
+	rule.name = 'VMProvisionRule';
+	rule.input = JSON.parse(JSON.stringify(outputMap.inputMap));
+	rule.conditions = [];
+	rule.actions = [];
+	var condition = {};
+	var ruleActions = "94cbc8c95b44130025c9273a41f91aa1";
+         var lastAction = "${lastActionId}";
+	if( skipRules == "true"){
+	   if(ruleActions.indexOf( lastActionId) != -1){
+	   // do nothing. action should be executed next
+	   }else{
+	          return outputMap.logs.isSuccessful;
+	   }
+	}
+	condition.isSuccessful = false;
+	rule.conditions[rule.conditions.length] = condition;
+	try {
+              var conditionSuccessful = "false";
+              try{
+                if (   checkValue( outputMap.inputMap.formData.Location, 'STARTSWITH','vSphere') ) {
+                     conditionSuccessful = "true";
+                }
+              }catch( error){
+              }
+		if (conditionSuccessful == "true") {
+			condition.isSuccessful = true;
+				if(skipRules == "false"){  
+               ipamAction( rule, "94cbc8c95b44130025c9273a41f91aa1",  "VMProvision",  "sn_cmp_infoblox_server", "1",  {"NodeName":"${parameter.formData.NodeName}","FailIfFound":"true","ProviderAttributes":"{\"ProviderAttributes\": [{ \"Key\": \"NetworkView\", \"Value\": \"default\" },{ \"Key\": \"DnsView\", \"Value\": \"default\" }],\"IPAssignMode\": { \"Name\": \"Pre\" }}","CidrBlock":"$(ci.cmdb_ci_cloud_subnet[${parameter.formData.SubnetId}].cidr)","DNSSuffix":"itomcmp.servicenow.com","IPAddress":""});
+               skipRules = "true";
+	}
+        gs.info("Post IPAM Action     94cbc8c95b44130025c9273a41f91aa1  " + outputMap.inputMap.moment +   "   last action id = "+ lastActionId);
+	if( skipRules == "true" && lastActionId == "94cbc8c95b44130025c9273a41f91aa1"){
+	    skipRules = "false";
+           // check moment
+          // set property here
+          //propertyAction( rule, property, value, isScript, "94cbc8c95b44130025c9273a41f91aa1")
+         gs.info("Post IPAM Action before property action call " + outputMap.inputMap.moment);
+          if( !gs.nil(outputMap.inputMap.moment ) && outputMap.inputMap.moment == 'pre'){
+               var ipVal = 'IPAssignMode=pre;IPAddress=${parameter.VMProvision.ALLOCATED_ADDRESS};Netmask=$(ci.cmdb_ci_cloud_subnet[${parameter.formData.SubnetId}].subnet_mask);Gateway=$(ci.cmdb_ci_cloud_subnet[${parameter.formData.SubnetId}].gateway);DNS1=$(ci.cmdb_ci_cloud_subnet[${parameter.formData.SubnetId}].primary_dns);DNS2=$(ci.cmdb_ci_cloud_subnet[${parameter.formData.SubnetId}].secondary_dns);MacAddress=';
+                  gs.info('ipVal = ' + ipVal);
+                    propertyAction( rule, 'IPAddress',  ipVal, 'false', '94cbc8c95b44130025c9273a41f91aa1');
+           }
+	}
+
+			outputMap.logs.isSuccessful = true;
+                        rule.message = 'Rule VMProvisionRule executed successfully';
+			outputMap.logs.message = 'Rule VMProvisionRule executed successfully';
+		}
+		rule.modified = JSON.parse(JSON.stringify(outputMap.inputMap));
+		condition.condition = "   checkValue( outputMap.inputMap.formData.Location, 'STARTSWITH','vSphere') ";
+		rule.isSuccessful=true;
+		outputMap.logs.rules[outputMap.logs.rules.length] = rule;
+		outputMap.logs.output = JSON.parse(JSON.stringify(outputMap.inputMap));
+	} catch (err) {
+		outputMap.logs.isError = true;
+		outputMap.logs.errorMessage = err.message;
+		rule.isSuccessful=false;
+	}
+	return outputMap.logs.isSuccessful;
+}
+
+
+outputParams = VMWareInfobloxIntegrationProvision();
+gs.info("outputParams =  " + outputParams);]]></script>
+        <start_date/>
+        <status>1</status>
+        <sys_class_name>sn_cmp_pol_policy</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2018-02-01 01:48:38</sys_created_on>
+        <sys_id>2feac4c95b44130025c9273a41f91a33</sys_id>
+        <sys_mod_count>2</sys_mod_count>
+        <sys_name>VMWare Infoblox Integration Provision</sys_name>
+        <sys_package display_value="InfobloxIntegration" source="sn_infobloxintegra">65e14c815b44130025c9273a41f91a12</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="InfobloxIntegration">65e14c815b44130025c9273a41f91a12</sys_scope>
+        <sys_update_name>sn_cmp_pol_policy_2feac4c95b44130025c9273a41f91a33</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2018-02-01 01:51:13</sys_updated_on>
+        <target_entity_id>3</target_entity_id>
+        <target_entity_instance_id>6a4a735e0be622009e620bcb15673a04</target_entity_instance_id>
+        <target_entity_table>sn_cmp_rb_resourceblock</target_entity_table>
+    </sn_cmp_pol_policy>
+</record_update>

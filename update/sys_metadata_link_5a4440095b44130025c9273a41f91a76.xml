@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_metadata_link">
+    <sys_metadata_link action="INSERT_OR_UPDATE">
+        <directory>update</directory>
+        <documentkey>6c2404095b44130025c9273a41f91a50</documentkey>
+        <payload><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<record_update sys_domain="global" table="sn_cmp_infoblox_server">
+    <sn_cmp_infoblox_server action="INSERT_OR_UPDATE">
+        <asset/>
+        <asset_tag/>
+        <assigned/>
+        <assigned_to/>
+        <assignment_group/>
+        <attributes/>
+        <can_print>false</can_print>
+        <category/>
+        <change_control/>
+        <checked_in/>
+        <checked_out/>
+        <comments/>
+        <company/>
+        <correlation_id/>
+        <cost/>
+        <cost_cc>USD</cost_cc>
+        <cost_center/>
+        <credential display_value="InfobloxSeattle">2fd2ccc55b44130025c9273a41f91a43</credential>
+        <delivery_date/>
+        <department/>
+        <discovery_source/>
+        <dns_domain/>
+        <due/>
+        <due_in/>
+        <fault_count>0</fault_count>
+        <first_discovered/>
+        <fqdn/>
+        <gl_account/>
+        <install_date/>
+        <install_status>1</install_status>
+        <invoice_number/>
+        <ip_address/>
+        <is_default>false</is_default>
+        <justification/>
+        <last_discovered/>
+        <lease_id/>
+        <location/>
+        <mac_address/>
+        <maintenance_schedule/>
+        <managed_by/>
+        <manufacturer/>
+        <model_id/>
+        <model_number/>
+        <monitor>false</monitor>
+        <name>InfobloxSeattle</name>
+        <object_id/>
+        <operational_status>1</operational_status>
+        <order_date/>
+        <owned_by/>
+        <po_number/>
+        <provider/>
+        <purchase_date/>
+        <schedule/>
+        <serial_number/>
+        <service_category/>
+        <short_description/>
+        <skip_sync>false</skip_sync>
+        <start_date/>
+        <subcategory/>
+        <support_group/>
+        <supported_by/>
+        <sys_class_name>sn_cmp_infoblox_server</sys_class_name>
+        <sys_class_path>/!!/$!/!#/!!</sys_class_path>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2018-02-01 01:17:19</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_domain_path>/</sys_domain_path>
+        <sys_id>6c2404095b44130025c9273a41f91a50</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2018-02-01 01:17:19</sys_updated_on>
+        <unverified>false</unverified>
+        <url>10.198.1.14</url>
+        <vendor/>
+        <warranty_expiration/>
+    </sn_cmp_infoblox_server>
+</record_update>
+]]></payload>
+        <sys_class_name>sys_metadata_link</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2018-02-01 01:17:39</sys_created_on>
+        <sys_id>5a4440095b44130025c9273a41f91a76</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>InfobloxSeattle</sys_name>
+        <sys_package display_value="InfobloxIntegration" source="sn_infobloxintegra">65e14c815b44130025c9273a41f91a12</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="InfobloxIntegration">65e14c815b44130025c9273a41f91a12</sys_scope>
+        <sys_update_name>sys_metadata_link_5a4440095b44130025c9273a41f91a76</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2018-02-01 01:17:39</sys_updated_on>
+        <tablename>sn_cmp_infoblox_server</tablename>
+    </sys_metadata_link>
+</record_update>
